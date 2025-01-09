@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de Limpiezas Profundas</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+ <!-- Incluir SweetAlert2 -->
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+        background-color: #007BFF;
+        color: white;
+        text-align: center;
+        padding: 15px;
+        width: 100%;
+        font-size: 1.5em;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Contenedor del formulario */
+    .container {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        text-align: center;
+        margin: 40px auto;
+        grid-row: 2;
+        height: auto;
+        box-sizing: border-box;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    label {
+        display: block;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+
+    input[type="date"],
+    textarea,
+    input[type="file"],
+    button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        padding: 12px 0;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    /* Estilo para los contenedores de vista previa */
+    .image-preview {
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 0px solid #ccc;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        box-sizing: border-box;
+    }
+
+    .image-preview-item {
+        position: relative;
+        width: 85px;
+        height: 85px;
+        overflow: hidden;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .image-preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .delete-icon {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        width: 20px;
+        height: 20px;
+        background: rgba(255, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .image-preview-item:hover .delete-icon {
+        opacity: 1;
+    }
+
+    /* Estilos para el área de carga de imágenes */
+    .file-upload {
+        display: block;
+        position: relative;
+        width: 100%;
+        padding: 20px;
+        background: #f0f8ff;
+        border: 2px dashed #ccc;
+        text-align: center;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 10px;
+        box-sizing: border-box;
+        border: 2px dashed #007BFF;
+        border-radius: 10px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        font-size: 16px;
+        background-color: #f0f8ff;
+        color: #007BFF;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        margin: 10px 0;
+    }
+
+    .file-upload:hover {
+        border-color: #0056b3;
+    }
+
+    .file-upload input[type="file"] {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    /* Estilo para el botón "Volver al Inicio" */
+    .back-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        text-align: center;
+        font-size: 1em;
+        transition: background-color 0.3s, transform 0.3s;
+        position: fixed;
+        top: 80px;
+        left: 0px;
+        z-index: 1001;
+    }
+
+    /* Estilo para los contenedores de preguntas */
+    .question-container {
+        margin-bottom: 20px;
+        text-align: left;
+        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+    }
+
+    /* Estilo para el campo de descripción */
+    .question-container textarea {
+    	padding: 15px; /* Aumentar el espacio interno */
+    	border: 2px solid #ccc;
+    	border-radius: 5px;
+    	width: 100%;
+    	font-size: 16px;
+    	background-color: #f9f9f9;
+    	color: #333;
+    	transition: border-color 0.3s;
+    	box-sizing: border-box;
+    	margin-top: 5px;
+    	height: 200px; /* Aumentar la altura para hacerlo más grande */
+    	resize: vertical; /* Permite al usuario cambiar el tamaño verticalmente */
+    }
+
+    .question-container:hover {
+        border-color: #007BFF;
+    }
+
+
+  			/* Estilos para la sección "oficina" */
+  			#oficina {
+  			padding: 10px;
+  			border: 2px solid #ccc;
+  			border-radius: 5px;
+  			width: 100%;
+  			font-size: 16px;
+  			background-color: #f9f9f9;
+  			color: #333;
+  			transition: border-color 0.3s;
+  			resize: vertical;
+  			box-sizing: border-box;
+  			}
+  			#oficina:focus {
+  			border-color: #007BFF;
+  			outline: none;
+  			}
+
+
+
+
+    .question-container input[type="date"],
+    .question-container textarea,
+    .question-container select {
+        padding: 10px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        font-size: 16px;
+        background-color: #f9f9f9;
+        color: #333;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+        margin-top: 5px;
+    }
+
+    .question-container input[type="date"]:focus,
+    .question-container textarea:focus,
+    .question-container select:focus {
+        border-color: #007BFF;
+        outline: none;
+    }
+
+    /* Estilos de las etiquetas */
+    .question-container label {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Estilo del overlay (pantalla bloqueada) */
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);  /* Fondo semitransparente */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;  /* Asegúrate de que esté por encima de otros elementos */
+    }
+
+    #loadingMessage {
+        color: white;  /* Texto en blanco */
+        font-size: 24px;  /* Tamaño de fuente para que se vea bien */
+        font-family: 'Times New Roman', Times, serif;  /* Fuente Times New Roman */
+        text-align: center;
+        padding: 20px;  /* Espaciado interno */
+    }
+
+/* Aseguramos que las estrellas se alineen horizontalmente */
+.star-rating {
+    display: flex;
+    justify-content: space-between;
+    width: 200px;  /* Ajusta el tamaño de acuerdo a tus necesidades */
+}
+
+/* Estilo para las estrellas */
+.star-rating input {
+    display: none;
+}
+
+/* Aseguramos que las estrellas se vean en color gris por defecto */
+.star-rating label {
+    font-size: 30px;  /* Ajusta el tamaño de las estrellas */
+    color: #ccc;
+    cursor: pointer;
+}
+
+/* Cuando las estrellas están seleccionadas, se vuelven doradas */
+.star-rating input:checked ~ label {
+    color: #f5b301;  /* Color dorado */
+}
+
+/* Evitamos que las estrellas se vean negras por defecto */
+.star-rating label {
+    transition: color 0.3s ease; /* Añadimos transición para un efecto más suave */
+}
+
+
+
+
+
+/* Estilo para el contenedor de la firma */
+.firma-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    /* Aseguramos que haya suficiente espacio para el canvas más grande */
+    min-height: 200px; /* o más, dependiendo de tus necesidades */
+}
+
+/* Botones debajo del lienzo */
+.firma-buttons {
+    margin-top: 10px;
+}
+
+/* Estilo para el botón de limpiar */
+.firma-buttons button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.firma-buttons button:hover {
+    background-color: #d32f2f;
+}
+
+
+.icon-button {
+    background: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #333;
+}
+
+.icon-button.active {
+    background: #007bff;
+    color: #fff;
+}
+
+.icon-button:hover {
+    background: #e2e6ea;
+}
+
+
+  			/* Estilo personalizado para el contenido del mensaje */
+  			.swal-content {
+      			font-size: 0.9em;  /* Reduce el tamaño del texto */
+      			line-height: 1.4;  /* Ajusta el espaciado entre líneas */
+  			}
+  
+  			/* Estilo personalizado para el botón */
+  			.swal-button {
+      			font-size: 0.9em;  /* Ajusta el tamaño del texto del botón */
+      			padding: 10px 20px;  /* Reduce el tamaño del botón si es necesario */
+  			}
+  
+  			/* Estilo personalizado para el popup/modal */
+  			.swal-popup {
+      			width: 300px;  /* Ajusta el ancho máximo del modal */
+      			max-width: 90%;  /* Permite que el modal sea flexible en pantallas pequeñas */
+  			}
+
+
+.input-error {
+    border: 2px solid red;
+}
+
+.error-message {
+    margin-top: 4px;
+    display: block;
+}
+
+
+
+
+
+</style>
+
+
+</head>
+<body>
+    <div class="header">
+        Pisos Brillantes
+    </div>
+
+    <a href="javascript:void(0);" class="back-button" onclick="goBack()">Volver al Inicio</a>
+
+    <div class="container">
+        <h1>Encuesta de Satisfacción del Servicio de Limpieza</h1>
+        <h4>Con el fin de evaluar la calidad de nuestro servicio de limpieza, le agradecemos responder a esta encuesta y de esta manera ofrecer un mejor servicio.</h4>
+
+<div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+
+
+
+        <div class="form-container">
+
+            <div class="question-container" style="display: none;">
+                <label for="fecha">Fecha:</label>
+                <input type="date" id="fecha" name="fecha" required>
+            </div>
+
+   			<div class="question-container">
+   				<label for="empresa">¿A que empresa pertenece?:</label>
+   				<select id="empresa">
+					<option value="Selecciona una opción">Selecciona una opción</option>
+					<option value="Argos">Argos</option>
+					<option value="Contratista">Contratista</option>
+				</select>
+   			</div>
+
+		<div id="areacheck" class="question-container">
+   			<label for="area">Indique el nombre de su área:</label>
+   			<select id="area">
+						<option value="Selecciona una opción">Selecciona una opción</option>
+						<option value="Administración">Administración</option>
+						<option value="Almacén General">Almacén General</option>
+						<option value="Baños de Transportistas">Baños de Transportistas</option>
+						<option value="Bodega de Limpieza">Bodega de Limpieza</option>
+						<option value="Camerinos Contratistas">Camerinos Contratistas</option>
+						<option value="Camerinos Permanentes">Camerinos Permanentes</option>
+						<option value="Chiminike">Chiminike</option>
+						<option value="Club de Argos">Club de Argos</option>
+						<option value="Despacho">Despacho</option>
+						<option value="Enfermería">Enfermería</option>
+						<option value="Equipo Móvil">Equipo Móvil</option>
+						<option value="Expedición">Expedición</option>
+						<option value="Laboratorio de Calidad">Laboratorio de Calidad</option>
+						<option value="Laboratorio de Concreto">Laboratorio de Concreto</option>
+						<option value="Machaqueo A">Machaqueo A</option>
+						<option value="Posta Principal">Posta Principal</option>
+						<option value="Sala de Control">Sala de Control</option>
+						<option value="Sala de Maternidad">Sala de Maternidad</option>
+						<option value="Salón Vial">Salón Vial</option>
+						<option value="Taller Eléctrico">Taller Eléctrico</option>
+			</select>
+   		</div>
+
+		<div id="oficinaAdministracion" class="question-container" style="display: none;">
+
+     <label for="oficina">Oficina de Administración:</label>
+     <input type="text" id="oficina" placeholder="Especifica la oficina" />
+
+  			</select>
+		</div>
+<div style="border-bottom: 1px solid #ccc; margin: 20px 0;"></div>
+
+        <h2>Califique el grado de limpieza de su área</h2>
+
+<div class="question-container">
+    <label for="rating1">¿Cómo calificaría la limpieza en su oficina, en términos generales?</label>
+    <div id="rating1" class="star-rating">
+        <input type="radio" id="star1-q1" name="rating1" value="1">
+        <label for="star1-q1" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q1" name="rating1" value="2">
+        <label for="star2-q1" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q1" name="rating1" value="3">
+        <label for="star3-q1" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q1" name="rating1" value="4">
+        <label for="star4-q1" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q1" name="rating1" value="5">
+        <label for="star5-q1" title="5 estrellas">★</label>
+    </div>
+</div>
+
+<div class="question-container">
+    <label for="rating2">La limpieza realizada en las áreas comunes (como pasillos, comedor, sala de reuniones, etc) es adecuada.</label>
+    <div id="rating2" class="star-rating">
+        <input type="radio" id="star1-q2" name="rating2" value="1">
+        <label for="star1-q2" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q2" name="rating2" value="2">
+        <label for="star2-q2" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q2" name="rating2" value="3">
+        <label for="star3-q2" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q2" name="rating2" value="4">
+        <label for="star4-q2" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q2" name="rating2" value="5">
+        <label for="star5-q2" title="5 estrellas">★</label>
+    </div>
+</div>
+
+<div class="question-container">
+    <label for="rating3">¿Cómo calificaría el nivel de limpieza de los baños de su área? Tomando en cuenta los siguientes aspectos: Limpieza, olores agradables, superficies limpias, etc.</label>
+    <div id="rating3" class="star-rating">
+        <input type="radio" id="star1-q3" name="rating3" value="1">
+        <label for="star1-q3" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q3" name="rating3" value="2">
+        <label for="star2-q3" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q3" name="rating3" value="3">
+        <label for="star3-q3" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q3" name="rating3" value="4">
+        <label for="star4-q3" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q3" name="rating3" value="5">
+        <label for="star5-q3" title="5 estrellas">★</label>
+    </div>
+</div>
+
+<div class="question-container">
+    <label for="rating4">Los suministros necesarios (papel higiénico, jabón, toallas) están siempre disponibles.</label>
+    <div id="rating4" class="star-rating">
+        <input type="radio" id="star1-q4" name="rating4" value="1">
+        <label for="star1-q4" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q4" name="rating4" value="2">
+        <label for="star2-q4" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q4" name="rating4" value="3">
+        <label for="star3-q4" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q4" name="rating4" value="4">
+        <label for="star4-q4" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q4" name="rating4" value="5">
+        <label for="star5-q4" title="5 estrellas">★</label>
+    </div>
+</div>
+
+<div class="question-container">
+    <label for="rating5">¿El personal de limpieza muestra profesionalismo y es amable en su trato con usted y sus colegas?</label>
+    <div id="rating5" class="star-rating">
+        <input type="radio" id="star1-q5" name="rating5" value="1">
+        <label for="star1-q5" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q5" name="rating5" value="2">
+        <label for="star2-q5" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q5" name="rating5" value="3">
+        <label for="star3-q5" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q5" name="rating5" value="4">
+        <label for="star4-q5" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q5" name="rating5" value="5">
+        <label for="star5-q5" title="5 estrellas">★</label>
+    </div>
+</div>
+
+<div class="question-container">
+    <label for="rating6">¿Cómo calificaría el servicio de limpieza?</label>
+    <div id="rating6" class="star-rating">
+        <input type="radio" id="star1-q6" name="rating6" value="1">
+        <label for="star1-q6" title="1 estrella">★</label>
+
+        <input type="radio" id="star2-q6" name="rating6" value="2">
+        <label for="star2-q6" title="2 estrellas">★</label>
+
+        <input type="radio" id="star3-q6" name="rating6" value="3">
+        <label for="star3-q6" title="3 estrellas">★</label>
+
+        <input type="radio" id="star4-q6" name="rating6" value="4">
+        <label for="star4-q6" title="4 estrellas">★</label>
+
+        <input type="radio" id="star5-q6" name="rating6" value="5">
+        <label for="star5-q6" title="5 estrellas">★</label>
+    </div>
+</div>
+
+
+            <div class="question-container">
+                <label for="descripcion">¿Hay algún comentario o sugerencia adicional que le gustaría hacer respecto a la limpieza de su área?</label>
+                <textarea id="descripcion" name="descripcion" rows="5" placeholder="Escribe aquí tus comentarios..."></textarea>
+            </div>
+
+
+<div class="question-container">
+    <label for="firma">Firma del Responsable:</label>
+    <div id="firmaContainer" class="firma-container">
+        <canvas id="firmaCanvas" width="400" height="200" style="border: 1px solid #ccc;"></canvas>
+    </div>
+    <div style="display: flex; gap: 10px; align-items: center; margin-top: 10px;">
+        <button id="toggleEraser" title="Borrador" class="icon-button">
+            <i class="fas fa-eraser"></i>
+        </button>
+        <button id="undo" title="Deshacer" class="icon-button">
+            <i class="fas fa-undo"></i>
+        </button>
+        <button id="redo" title="Rehacer" class="icon-button">
+            <i class="fas fa-redo"></i>
+        </button>
+        <button id="clearSignature" title="Limpiar" class="icon-button">
+            <i class="fas fa-trash-alt"></i>
+        </button>
+    </div>
+</div>
+
+
+
+
+
+
+            <button type="button" onclick="generarPDF()">Enviar</button>
+        </div>
+    </div>
+
+    <!-- Contenedor para bloquear la pantalla -->
+    <div id="overlay" style="display: none;">
+        <div id="loadingMessage">
+            <p>Procesando...🥱</p>
+        </div>
+    </div>
+
+
+<script>
+
+
+
+<!-- Contenedor para la Firma -->
+
+let isDrawing = false;
+let isErasing = false;
+let lastX = 0;
+let lastY = 0;
+const canvas = document.getElementById("firmaCanvas");
+const ctx = canvas.getContext("2d");
+
+const undoStack = [];
+const redoStack = [];
+
+// Guardar el estado actual del canvas en la pila de deshacer
+function saveToUndoStack() {
+    undoStack.push(canvas.toDataURL());
+    redoStack.length = 0; // Limpiar la pila de rehacer
+}
+
+// Deshacer acción
+function undo() {
+    if (undoStack.length > 0) {
+        saveToRedoStack();
+        const lastState = undoStack.pop();
+        const img = new Image();
+        img.src = lastState;
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+    }
+}
+
+// Rehacer acción
+function redo() {
+    if (redoStack.length > 0) {
+        const lastState = redoStack.pop();
+        undoStack.push(canvas.toDataURL()); // Guardar el estado actual en la pila de deshacer
+        const img = new Image();
+        img.src = lastState;
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+    }
+}
+
+// Guardar el estado en la pila de rehacer
+function saveToRedoStack() {
+    redoStack.push(canvas.toDataURL());
+}
+
+// Obtener coordenadas del evento
+function getCoordinates(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width; // Escala en X
+    const scaleY = canvas.height / rect.height; // Escala en Y
+    if (e.touches) {
+        return {
+            x: (e.touches[0].clientX - rect.left) * scaleX,
+            y: (e.touches[0].clientY - rect.top) * scaleY
+        };
+    }
+    return { x: (e.offsetX) * scaleX, y: (e.offsetY) * scaleY };
+}
+
+// Modo borrador
+document.getElementById("toggleEraser").addEventListener("click", () => {
+    isErasing = !isErasing;
+    document.getElementById("toggleEraser").classList.toggle("active");
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!isDrawing) return;
+    const { x, y } = getCoordinates(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = isErasing ? "#FFF" : "#000";
+    ctx.lineWidth = isErasing ? 10 : 4;
+    ctx.stroke();
+    lastX = x;
+    lastY = y;
+});
+
+// Dibujar o borrar en el canvas
+canvas.addEventListener("mousedown", (e) => {
+    saveToUndoStack();
+    isDrawing = true;
+    const { x, y } = getCoordinates(e);
+    lastX = x;
+    lastY = y;
+});
+
+canvas.addEventListener("mouseup", () => (isDrawing = false));
+canvas.addEventListener("mouseout", () => (isDrawing = false));
+
+// Botones
+document.getElementById("undo").addEventListener("click", undo);
+document.getElementById("redo").addEventListener("click", redo);
+document.getElementById("clearSignature").addEventListener("click", () => {
+    localStorage.removeItem('canvasState'); // Elimina el estado guardado
+    saveToUndoStack();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+});
+
+// Evitar el desplazamiento de la pantalla en dispositivos móviles
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault(); // Evita el desplazamiento de la pantalla
+    saveToUndoStack();
+    isDrawing = true;
+    const { x, y } = getCoordinates(e);
+    lastX = x;
+    lastY = y;
+});
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault(); // Evita el desplazamiento de la pantalla
+    if (!isDrawing) return;
+    const { x, y } = getCoordinates(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = isErasing ? "#FFF" : "#000";
+    ctx.lineWidth = isErasing ? 10 : 2;
+    ctx.stroke();
+    lastX = x;
+    lastY = y;
+});
+
+canvas.addEventListener("touchend", (e) => {
+    e.preventDefault(); // Evita el desplazamiento de la pantalla
+    isDrawing = false;
+});
+
+canvas.addEventListener("touchcancel", (e) => {
+    e.preventDefault(); // Evita el desplazamiento de la pantalla
+    isDrawing = false;
+});
+
+// Ajustar el tamaño del canvas sin perder el dibujo
+function resizeCanvas() {
+    // Guardar el contenido actual del canvas
+    const currentDrawing = canvas.toDataURL();
+
+    // Obtener el contenedor del canvas
+    const container = canvas.parentElement;
+
+    // Ajustar el tamaño visual del canvas al contenedor
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+
+    // Ajustar el tamaño interno del canvas para mantener la resolución
+    const rect = container.getBoundingClientRect();
+    const newWidth = rect.width;
+    const newHeight = rect.height;
+
+    // Solo redimensionar si las dimensiones del canvas han cambiado
+    if (canvas.width !== newWidth || canvas.height !== newHeight) {
+        // Ajustar el tamaño interno del canvas para la nueva resolución
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        // Restaurar el contenido del canvas después de redimensionar
+        const img = new Image();
+        img.src = currentDrawing;
+        img.onload = () => {
+            // Asegurarse de que el contenido se ajuste correctamente al nuevo tamaño
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        };
+    }
+}
+
+// Llamar a la función al cargar la página y al cambiar el tamaño de la ventana
+window.addEventListener("load", resizeCanvas);
+window.addEventListener("resize", resizeCanvas);
+
+// Función para guardar el estado del canvas en el localStorage
+function saveCanvasState() {
+    const canvasData = canvas.toDataURL();
+    localStorage.setItem('canvasState', canvasData);
+}
+
+// Función para restaurar el estado del canvas desde el localStorage
+function restoreCanvasState() {
+    const canvasData = localStorage.getItem('canvasState');
+    if (canvasData) {
+        const img = new Image();
+        img.src = canvasData;
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);  // Limpiar el canvas
+            ctx.drawImage(img, 0, 0);
+        };
+    }
+}
+
+// Restaurar el estado solo cuando el usuario haga clic en el canvas
+canvas.addEventListener('click', restoreCanvasState);
+
+// Guardar el estado del canvas cuando el usuario cambia de campo
+document.querySelectorAll('input, textarea').forEach(element => {
+    element.addEventListener('focus', () => {
+        saveCanvasState();  // Guardamos el estado al hacer focus en un campo
+    });
+});
+
+
+<!-- Contenedor para la Firma -->
+
+
+
+
+
+
+  			// Obtener el select y la casilla de "Oficina de Administración"
+  			const areaSelect = document.getElementById('area');
+  			const oficinaAdministracionDiv = document.getElementById('oficinaAdministracion');
+  			
+  			// Añadir un evento para detectar el cambio en el select
+  			areaSelect.addEventListener('change', () => {
+  			    if (areaSelect.value === 'Administración') {
+  			        // Mostrar la casilla de Oficina de Administración si se selecciona "Administración"
+  			        oficinaAdministracionDiv.style.display = 'block';
+  			    } else {
+  			        // Ocultar la casilla de Oficina de Administración si se selecciona cualquier otra opción
+  			        oficinaAdministracionDiv.style.display = 'none';
+  			    }
+  			});
+
+
+
+
+document.querySelectorAll('.star-rating').forEach((ratingContainer) => {
+    const inputs = ratingContainer.querySelectorAll('input');
+    const labels = ratingContainer.querySelectorAll('label');
+
+    inputs.forEach((input, index) => {
+        input.addEventListener('change', () => {
+            // Marca todas las estrellas previas cuando se selecciona una
+            labels.forEach((label, i) => {
+                if (i <= index) {
+                    label.style.color = '#f5b301';  // Color dorado
+                } else {
+                    label.style.color = '#ccc';  // Color gris para las no seleccionadas
+                }
+            });
+        });
+    });
+});
+
+
+function getSelectedRating(questionName) {
+    const selectedInput = document.querySelector(`input[name="${questionName}"]:checked`);
+    return selectedInput ? parseInt(selectedInput.value) : 0;  // Devuelve el número de estrellas seleccionadas, 0 si no hay selección
+}
+
+
+
+
+
+
+  function goBack() {
+  window.history.back();  // Esto hace que el navegador vuelva a la página anterior
+  }
+
+
+
+    // Establecer la fecha actual por defecto
+    window.onload = function() {
+        const fechaInput = document.getElementById("fecha");
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Los meses van de 0 a 11
+        let dd = today.getDate();
+
+        // Formatear la fecha a formato YYYY-MM-DD
+        if (mm < 10) mm = '0' + mm;
+        if (dd < 10) dd = '0' + dd;
+
+        const formattedDate = yyyy + '-' + mm + '-' + dd;
+        fechaInput.value = formattedDate;
+    };
+
+    // Objetos para almacenar las imágenes seleccionadas por vista previa
+    const selectedFiles = {
+        preview1: []
+    };
+
+
+
+
+
+
+
+async function generarPDF() {
+
+
+// Eliminar mensajes de error previos
+document.querySelectorAll('.error-message').forEach(el => el.remove());
+document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+let hasError = false;
+
+// Función para mostrar error
+function mostrarError(id, mensaje, isLabel = false) {
+    const elemento = isLabel ? document.querySelector(`label[for="${id}"]`) : document.getElementById(id);
+    const mensajeError = document.createElement('span');
+    mensajeError.className = 'error-message';
+    mensajeError.style.color = 'red';
+    mensajeError.style.fontSize = '0.8em';
+    mensajeError.textContent = mensaje;
+
+    if (!isLabel) {
+        elemento.classList.add('input-error');
+        elemento.insertAdjacentElement('afterend', mensajeError);
+
+        // Agregar eventos para eliminar error al corregir
+        elemento.addEventListener('input', eliminarError);
+        elemento.addEventListener('change', eliminarError);
+    } else {
+        elemento.insertAdjacentElement('afterend', mensajeError);
+
+        // Agregar eventos a los radios del grupo
+        const radios = document.querySelectorAll(`input[name="${id}"]`);
+        radios.forEach(radio => {
+            radio.addEventListener('change', eliminarError);
+        });
+    }
+
+    hasError = true;
+}
+
+// Función para eliminar error de un campo específico
+function eliminarError(event) {
+    const campo = event.target;
+    const isRadio = campo.type === 'radio';
+
+    if (isRadio) {
+        // Eliminar mensaje de error asociado al grupo de radios
+        const label = campo.closest('label') || document.querySelector(`label[for="${campo.name}"]`);
+        const mensajeError = label ? label.nextElementSibling : null;
+        if (mensajeError && mensajeError.classList.contains('error-message')) {
+            mensajeError.remove();
+        }
+    } else {
+        // Eliminar mensaje de error asociado al campo específico
+        campo.classList.remove('input-error');
+        const mensajeError = campo.nextElementSibling;
+        if (mensajeError && mensajeError.classList.contains('error-message')) {
+            mensajeError.remove();
+        }
+    }
+}
+
+// Validaciones
+if (!document.getElementById('fecha').value.trim()) {
+    mostrarError('fecha', 'Por favor, llena este campo.');
+}
+
+if (document.getElementById('empresa').value === 'Selecciona una opción') {
+    mostrarError('empresa', 'Selecciona una empresa válida.');
+}
+
+if (document.getElementById('area').value === 'Selecciona una opción') {
+    mostrarError('area', 'Selecciona un área válida.');
+}
+
+if (
+    document.getElementById('area').value === 'Administración' &&
+    !document.getElementById('oficina').value.trim()
+) {
+    mostrarError('oficina', 'Por favor, llena este campo si es Administración.');
+}
+
+['rating1', 'rating2', 'rating3', 'rating4', 'rating5', 'rating6'].forEach(rating => {
+    if (!document.querySelector(`input[name="${rating}"]:checked`)) {
+        mostrarError(rating, 'Selecciona una calificación.', true);
+    }
+});
+
+// Si hay errores, detener la ejecución
+if (hasError) {
+    return;
+}
+
+
+    // Aquí continua el resto del código si no hay errores
+    document.getElementById('overlay').style.display = 'flex';
+
+
+
+    // Mostrar overlay de espera
+    document.getElementById('overlay').style.display = 'flex';  // Mostrar el bloqueador de pantalla
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ format: 'letter' });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    // Obtener datos del formulario
+    const fecha = document.getElementById('fecha').value;
+    const empresa = document.getElementById('empresa').value;
+    const area = document.getElementById('area').value;
+    const oficina = document.getElementById('oficina').value;
+    const descripcion = document.getElementById('descripcion').value;
+
+        const firmaDataUrl = canvas.toDataURL("image/png");
+
+
+    // Obtener respuestas de las preguntas
+    const rating1 = getSelectedRating('rating1');  // Respuesta de la pregunta 1
+    const rating2 = getSelectedRating('rating2');  // Respuesta de la pregunta 2
+    const rating3 = getSelectedRating('rating3');  // Respuesta de la pregunta 3
+    const rating4 = getSelectedRating('rating4');  // Respuesta de la pregunta 4
+    const rating5 = getSelectedRating('rating5');  // Respuesta de la pregunta 5
+    const rating6 = getSelectedRating('rating6');  // Respuesta de la pregunta 6
+
+    // Portada
+    pdf.setFont("times", "bold"); // Cambiar a Times y negrita
+    pdf.setFontSize(16);
+    pdf.text("Encuesta de Satisfacción del Servicio de Limpieza", 10, 20);
+    pdf.setFontSize(16);
+    pdf.text(`Empresa: ${empresa}`, 10, 35);
+    pdf.text(`Área / Departamento: ${area}`, 10, 50);
+
+    // Condición para verificar el área y mostrar oficina de acuerdo a ello
+    if (area !== "Administración") {
+        pdf.text("Oficina: N/A", 10, 65); // Si el área no es "Administración"
+    } else {
+        pdf.text(`Oficina: ${oficina}`, 10, 65); // Si el área es "Administración"
+    }
+
+
+    pdf.text(`Fecha: ${fecha}`, 10, 80);
+
+    // Línea horizontal
+    pdf.line(10, 90, 190, 90); // Línea desde (x1, y1) hasta (x2, y2)
+
+        pdf.text("Firma del Responsable:", 150, 50);
+
+        pdf.addImage(firmaDataUrl, 'PNG', 160, 55, 40, 25); // Ajusta el tamaño y posición según sea necesario
+
+
+    pdf.setFontSize(14);
+
+
+    // Dibujar las estrellas para las preguntas
+    pdf.text(`1. ¿Cómo calificaría la limpieza en su oficina, en términos generales?`, 10, 100);
+    drawStars(pdf, 13, 105, rating1); // Dibuja las estrellas para la primera pregunta
+
+    pdf.text(`2. La limpieza realizada en las áreas comunes (como pasillos, comedor, sala de reuniones, etc) es adecuada.`, 10, 120, { maxWidth: 190 });
+    drawStars(pdf, 13, 131, rating2); // Dibuja las estrellas para la segunda pregunta
+
+    pdf.text(`3. ¿Cómo calificaría el nivel de limpieza de los baños de su área? Tomando en cuenta los siguientes aspectos: Limpieza, olores agradables, superficies limpias, etc.`, 10, 146, { maxWidth: 190 });
+    drawStars(pdf, 13, 157, rating3); // Dibuja las estrellas para la tercera pregunta
+
+    pdf.text(`4. Los suministros necesarios (papel higiénico, jabón, toallas) están siempre disponibles.`, 10, 172, { maxWidth: 190 });
+    drawStars(pdf, 13, 177, rating4); // Dibuja las estrellas para la cuarta pregunta
+
+    pdf.text(`5. ¿El personal de limpieza muestra profesionalismo y es amable en su trato con usted y sus colegas?`, 10, 192, { maxWidth: 190 });
+    drawStars(pdf, 13, 203, rating5); // Dibuja las estrellas para la quinta pregunta
+
+    pdf.text(`6. ¿Cómo calificaría el servicio de limpieza?`, 10, 218);
+    drawStars(pdf, 13, 223, rating6); // Dibuja las estrellas para la sexta pregunta
+
+    // Verificar si la descripción está vacía o no
+    if (descripcion && descripcion.trim() !== "") {
+        // Filtrar emoticones de la descripción
+        const descripcionFiltrada = descripcion.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA70}-\u{1FAFF}\u{200D}\u{FE0F}]/gu, "");
+
+        // Agregar el texto al PDF solo si no está vacío después del filtro
+        if (descripcionFiltrada.trim() !== "") {
+            pdf.text(`¿Hay algún comentario o sugerencia adicional que le gustaría hacer respecto a la limpieza de su área?`, 10, 238, { maxWidth: 190 });
+            pdf.setFont("Arial", "normal");
+            pdf.text(descripcionFiltrada, 10, 250, { maxWidth: 190 });
+        }
+    }
+
+
+
+    // Crear un nombre para el archivo basado en la fecha y el título
+    let nombreArchivo = `${fecha} - Encuesta de Satisfacción - ${area}`;
+
+    // Asegurarse de que el nombre del archivo tenga la extensión correcta
+    nombreArchivo += ".pdf";
+
+
+// Convierte el PDF generado a base64
+const pdfBase64 = pdf.output('datauristring').split(',')[1]; // Elimina la parte 'data:application/pdf;base64,'
+
+// Crea la solicitud para enviar el archivo al script de Google Apps
+const response = await fetch('https://script.google.com/macros/s/AKfycbzm1pATiJ-K1epr7oBgbVeqVmubqS1gg1yqtroO1ddBc0Iy2CWiuEqnDrdvnpUjg8VT9g/exec', {
+    method: 'POST',
+    body: new URLSearchParams({
+        pdfFile: pdfBase64,
+        fileName: nombreArchivo  // Agrega el nombre del archivo
+    })
+});
+
+// Esperar respuesta del servidor
+const result = await response.text();
+
+// Mostrar el ID del archivo guardado en Google Drive
+console.log('Archivo guardado con ID:', result);
+
+    // Ocultar el overlay de espera
+    document.getElementById('overlay').style.display = 'none';
+
+
+      			        Swal.fire({
+          			            text: '¡Envío exitoso! 🥳🎉',   // Mensaje
+          			            icon: 'success',     // Icono de advertencia
+          			            confirmButtonText: 'Aceptar',  // Botón para cerrar
+          			            customClass: {
+              			                    content: 'swal-content',  // Aplica una clase personalizada al contenido
+              			                    confirmButton: 'swal-button',  // Aplica una clase personalizada al botón
+              			                    popup: 'swal-popup'  // Aplica una clase personalizada al popup/modal
+          			            }
+      			        });
+
+
+}
+
+
+
+// Función para dibujar estrellas
+function drawStars(pdf, x, y, rating) {
+    const starRadius = 2.5;  // Radio de cada estrella
+    const spaceBetween = 6;  // Espacio entre las estrellas
+    const filledColor = [255, 204, 0];  // Color amarillo para las estrellas llenas
+    const emptyColor = [200, 200, 200];  // Color gris para las estrellas vacías
+
+    // Dibujar las 5 estrellas
+    for (let i = 0; i < 5; i++) {
+        const color = i < rating ? filledColor : emptyColor;  // Determina el color según la calificación
+        pdf.setFillColor(color[0], color[1], color[2]);  // Establecer color de relleno
+
+        // Dibuja un círculo representando la estrella
+        pdf.circle(x + i * spaceBetween, y, starRadius, 'FD');  // 'FD' significa relleno y contorno
+    }
+}
+
+
+
+</script>
+
+</body>
+</html>
